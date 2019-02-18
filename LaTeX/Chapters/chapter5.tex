@@ -1,0 +1,159 @@
+%!TEX root = ../template.tex
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% chapter4.tex
+%% NOVA thesis document file
+%%
+%% Chapter with lots of dummy text
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Avaliação}
+\label{cha:avaliacao}
+AQUI É ONDE VÃO ESTAR TANTO OS RESULTADOS DOS BENCHMAKRS DO PROTOTIPO DE HADOOP/MAPREDUCE COMO TAMBEM OS RESULTADOS DO PROTOTIPO DE SPARK.
+
+DISCUSSAO SOBRE O SET DE EXPRESSÕES RELEVANTES A PROCESSAR:
+
+    - NÃO POSSO PRE-PROCESSAR TODAS AS ERS PORQUE SE O FIZER PARA EFEITOS DE PESQUISA 
+    - NÃO POSSO PRE-PROCESSAR OS DOCUMENTOS DE TEXTO PARA LOWERCASE PORQUE SE O FIZER VOU DOBRAR O TAMANHO DO DATASET SÓ PARA PODER PROCESSAR TODAS AS ERS NOS TEXTOS EM LOWERCASE.
+    -tambem existia a hipotese de tirar todas os caracteres especiais dos documentos textos e das ERs, mas lá está isso faria com que o docs e as ERs ivessem de ser pre-processadas e ia aumentar o tamanho do dataset durante a execução. Isto facilitaria nos "matches" da procura de ERs nos documentos. 
+    - A DECISÃO É NA ALTURA DA EXECUÇÃO TANTO DO HADOOP COMO DO SPARK TODAS AS ERS QUE SAO PROCURADAS NOS DOCUMENTOS DE TEXTO SÃO PROCESSADAS, in run-time, PARA EFEITOS DE COERÊNCIA. OU SEJA, NUM CASO ONDE EXISTA NA LISTA DE ERS A ER "Global Warming" E TAMBEM "global warming" APESAR DAS DUAS ERS SEREM DOIS CONJUNTOS DE PALAVRAS IDÊNTICOS, PARA EFEITOS DE PESQUISA elas têm de ser passadas para lowercase pois lá está, querem dizer o mesmo e então devem contar como se fossem um unica ER. Esta solução vai fazer com que no futuro não hajam resultados de correlação como por exemplo: "Global Warming-global warming -> 0,0212", ou "Global warming-ice melting -> 0.004" "global warming-ice melting -> 0.1203".
+    
+
+\section{Benchmark Hadoop}
+MAPPER : mapper is a class. MAPPER PHASE : mapper phase is a input,output code in to convert the values in keys and values pairs(keys,values). MAPPER SLOT : to execute the mapper and reducer code.
+    
+    
+\subsection{TESTES COM 222k de ERs, só Bi-gramas}
+222 mil Expressões Relevantes - Bi-gram
+23216 documentos de texto - 50milhões de palavras
+
+\subsubsection{1º teste}
+Primeiro Teste feito foi com contains:
+
+6 máquinas, em que 2 eram headnodes, e 4 workers - Tag: D3 v2, 4vcpu, 14gb ram, 8 discos, 200gb SSD
+
+1º job que consiste no mapeamento das ERs e no calculo de valores intermédios da correlação de Pearson.
+Elapsed Time: 4horas, 19minutos e 52 segundos
+Average Map Time: 17sec
+Average Shuffle Time: 3horas, 28minutos e 21 segundos
+Average Merge Time: 0sec
+Average Reduce Time: 30minutos, 38segundos
+
+média de 29 mappers a executarem ao mesmo tempo
+
+2º job que consiste no calculo dos valores finais e no calculo do output final da correlação de Pearson.
+Elapsed Time: 21minutos, 11segundos
+Average Map Time: 3minutos, 22segundos
+Average Shuffle Time: 3minutos, 33 segundos
+Average Merge Time: 0sec
+Avarege REduce Time: 14minutos, 48segundos
+
+
+
+\subsubsection{2º teste}
+Segundo teste feito já levou a optimização do indexOf em relação ao contains e já só vou escrever todas as correlações queestejam acima do treshold que eu quero, tipicamente 0,1/0,2.
+
+10 máquinas, em que 2 eram headnodes, e 8 workers - Tag: D3 v2, 4vcpu, 14gb ram, 8 discos, 200gb SSD
+
+1º job que consiste no mapeamento das ERs e no calculo de valores intermédios da correlação de Pearson.
+Elapsed Time: 3horas, 2minutos e 21 segundos
+Average Map Time: 23sec
+Average Shuffle Time: 2horas, 11minutos e 51 segundos
+Average Merge Time: 0sec
+Average Reduce Time: 32minutos, 35segundos
+
+média de 61 mapper taskes a correrem ao mesmo tempo
+
+Neste teste Average Suffle Time tende a a descer significativamente. Porque a quantidade de dados em cada nó diminui e existem mais combiners (reducers locais). 
+
+
+EXPECULAÇÃO ---- Neste teste Average Mapper Time tende a manter ou subir pouco (neste caso foram 6 segundos a mais). Porque o tempo de execução corresponde ao subset de tarefas mais longo, sendo que a distribuição está feita de um modo decrescente por tamanho de ficheiro. O split por buckets consiste em atribuir os n primeiros ficheiros, por ordem decrescente. Onde o primeiro nó recebe o ficheiro mais pesado. Como tenho o isSplitable = false, 
+
+https://stackoverflow.com/questions/9258134/about-hadoop-hdfs-file-splitting?fbclid=IwAR2qBH7_7bAv3ZmSZQXWxHarCqf1u9kl67Ng7skKed_WJTJiwA48_98RwVA
+
+https://stackoverflow.com/questions/8179872/difference-and-relationship-between-slots-map-tasks-data-splits-mapper?rq=1
+
+2º job que consiste no calculo dos valores finais e no calculo do output final da correlação de Pearson.
+Elapsed Time: 13minutos, 56segundos
+Average Map Time: 3minutos, 41segundos
+Average Shuffle Time: 4minutos, 0 segundos
+Average Merge Time: 6sec
+Avarege Reduce Time: 7minutos, 32segundos
+
+\textbf{Input Split:} It is the logical representation of data. It represents the data which is processed by an individual Mapper. When you save any file in Hadoop, the file is broken down into blocks of 128 MB (default configuration). HDFS is designed to have a Master — Slave configuration, so the blocks of data is stored in slaves (Data Nodes) and meta data of data is stored in Master(Name Node). We can control the block size by setting mapred.min.split.size parameter in mapred-site.xml. One map task is created for each Input Split. The split is divided into records and each record will be processed by the mapper.
+ It is always beneficial to have multiple splits, because the time taken to process a split is small as compared to the time taken for processing of the whole input. When the splits are smaller, the processing is better load balanced since it will be processing the splits in parallel.
+ 
+ (Justificação pelo qual o suffle time vai reduzindo o tempo) \textbf{Combiner:} The combiner is also known as ‘Mini-Reducer’. Combiner is optional and performs local aggregation on the mappers output, which helps to minimize the data transfer between Mapper and Reducer, thereby improving the overall performance of the Reducer. The output of Combiner is then passed to the Partitioner.
+ 
+ Reducer: It takes the set of intermediate key-value pairs produced by the mappers as the input and then runs a reducer function on each of them to generate the output. The output of the reducer is the final output, which is stored in HDFS. Reducers run in parallel as they are independent of one another. The user decides the number of reducers. By default, the number of reducers is 1. Increasing the number of Reducers increases the overhead, increases load balancing and lowers the cost of failures.
+
+    
+
+\subsubsection{3º teste}
+o 3º teste já é feito com as mesmas optimizações do 2º teste, uso do indexOf e sem plit, para ajudar a reduzir a complexidade temporal dos mappers do primeiro job.
+
+14 máquinas, em que 2 eram headnodes, e 12 workers - Tag: D3 v2, 4vcpu, 14gb ram, 8 discos, 200gb SSD
+
+1º job que consiste no mapeamento das ERs e no calculo de valores intermédios da correlação de Pearson.
+
+média de 93 mapper taskes a correrem ao mesmo tempo
+
+Elapsed Time: 2horas, 17minutos e 44segundos
+Average Map Time: 24sec
+Average Shuffle Time: 1horas, 33minutos e 48segundos
+Average Merge Time: 0sec
+Average Reduce Time: 34minutos, 9segundos
+
+
+2º job que consiste no calculo dos valores finais e no calculo do output final da correlação de Pearson.
+
+Elapsed Time: 14minutos, 6segundos
+Average Map Time: 4minutos, 16segundos
+Average Shuffle Time: 3minutos, 49segundos
+Average Merge Time: 15sec
+Avarege Reduce Time: 7minutos, 3segundos
+
+\subsubsection{4º teste}
+Não houve optimizações no código neste teste, é feito com o mesmo codigo do 2º e 3º.
+
+18 máquinas, em que 2 eram headnodes, e 16 workers - Tag: D3 v2, 4vcpu, 14gb ram, 8 discos, 200gb SSD
+
+1º job que consiste no mapeamento das ERs e no calculo de valores intermédios da correlação de Pearson.
+
+média de 126 mapper tasks a correrem ao mesmo tempo
+
+Elapsed Time: 1horas, 55minutos e 17segundos
+Average Map Time: 26sec
+Average Shuffle Time: 1horas, 15minutos e 40segundos
+Average Merge Time: 0sec
+Average Reduce Time: 31minutos, 47segundos
+
+2º job que consiste no calculo dos valores finais e no calculo do output final da correlação de Pearson.
+
+média de 29 mapper tasks a correrem ao mesmo tempo 
+
+Elapsed Time: 15minutos, 34segundos
+Average Map Time: 4minutos, 16segundos
+Average Shuffle Time: 4minutos, 27segundos
+Average Merge Time: 13sec
+Avarege Reduce Time: 8minutos, 13segundos
+
+
+\subsection{TESTES com 500k de ERs, bi-grams e tri-grams}
+500 mil Expressões Relevantes - Bi-grams e trigrams.
+23216 documentos de texto - 50milhões de palavras
+
+\subsubsection{1º teste}
+O 1º teste já é feito com as mesmas optimizações do 2º teste, uso do indexOf e sem plit, para ajudar a reduzir a complexidade temporal dos mappers do primeiro job.
+
+10 máquinas, em que 2 eram headnodes, e 8 workers - Tag: D3 v2, 4vcpu, 14gb ram, 8 discos, 200gb SSD
+
+\subsubsection{2º teste}
+18 máquinas, em que 2 eram headnodes, e 16 workers - Tag: D3 v2, 4vcpu, 14gb ram, 8 discos, 200gb SSD
+
+\subsection{TESTES com 750k de ERs, bi-grams, tri-grams e tet-grams}
+Este teste já só vai fazer output de correlações que sejam >= 0.35.
+
+\subsubsection{1º teste}
+18 máquinas, em que 2 eram headnodes, e 16 workers - Tag: D3 v2, 4vcpu, 14gb ram, 8 discos, 200gb SSD
+
+1º job: Aconteceu uma coisa até previsível, com o tipo de problema que estou a crer resolver. O 1ºjob falha no Reduce aos 33\% porque o nó que está a fazer reduce da combinatória enorme de ERs fica sem espaço no disco.
+

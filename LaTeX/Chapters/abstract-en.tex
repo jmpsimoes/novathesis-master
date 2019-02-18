@@ -1,0 +1,16 @@
+%!TEX root = ../template.tex
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% abstrac-en.tex
+%% NOVA thesis document file
+%%
+%% Abstract in English
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+It was estimated that 90\% of the data that currently exist on the Internet was created in the last 2 years. Taking the growth of the data into account, the number of relations/patterns in them increases rapidly. Together, sets of documents can be processed to obtain meta-data that describes these linguistic phenomena in natural language. Among the n-gram there are those which are associated with a more specific semantics. In a \textit{corpus} there are several n-grams which may, or may not, be semantically associated. These n-grams have the property to strongly reflect the "core" content of documents where they occur. This kind of n-grams form therefore, Multi-word Expression MWEs, also known as Relevant Expressions (REs). It is possible to measure the semantic association between MWEs. Taking as an example these two MWEs, "financial crises" and "unemployment in the Euro Zone", we can say that there is a strong semantic relation between them. This relation can be calculated by statistic correlation metrics. Other metrics can also be used to select the more informative MWEs. Other MWEs may be semantically associated to the core content of a document, even if these are not present in the document. For example in a short text document that is about environment and contains the MWE "global warming", but does not contain the MWE "Ice melting" which is semantically close to "global warming", as easy to understand. In a search environment would be really useful if a search engine could retrieve that text document after the query "Ice melting", even knowing that the document does not contain explicitly that MWE. 
+
+In order to achieve the automatic construction of such descriptors of documents, it is necessary to possess the ability to calculate the correlation between pairs of MWEs. Considering that the number of these pairs grows with the square of the size in words of the \textit{corpora}, the implementation needs a parallel and distributed approach; Hadoop and Spark are possible frameworks to solve this problem. 
+
+The challenge of this dissertation is to build a prototype that can automatically build descriptors of documents from \textit{corpus}, in useful time. This prototype may be useful in various areas, as is the case of query expansion, as has already been previously mentioned.
+
+\begin{keywords}
+Big Data, Multi-word Expression (MWE), Extractors of MWEs, N-gram, Pearson Correlation, Distributed and Parallel Systems, Hadoop, Spark.
+\end{keywords}

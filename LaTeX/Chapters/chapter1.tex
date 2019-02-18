@@ -1,0 +1,66 @@
+%!TEX root = ../template.tex
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% chapter1.tex
+%% NOVA thesis document file
+%%
+%% Chapter with introduciton
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\novathesis}{\emph{novathesis}}
+\newcommand{\novathesisclass}{\texttt{novathesis.cls}}
+
+\chapter{Introdução}
+\label{cha:introduction}
+Nos dias que correm existe uma grande quantidade de dados disponíveis nas plataformas a que temos acesso. Foi estimado que  90\% dos dados que existem na Internet foram criados nos últimos dois anos. Estima-se que em 2010 cerca de 29\% da população mundial utilizava a Internet. Esse número cresceu para 40\% em 2014, enquanto que em 2016 47\% da população mundial utilizava a Internet~\cite{ICTFigures02}. Isto perfaz cerca de 3.7 mil milhões de utilizadores na Internet~\cite{ICTFigures01}.
+
+Tendo isto em conta, podemos facilmente concluir que os utilizadores, negócios e todos os aparelhos tecnológicos que podemos ter ligados à Internet contribuem para o crescimento enorme de informação que é gerada todos os dias. Com este crescimento da quantidade de dados, o número de padrões e relações neles contida é também muito grande, sendo a sua deteção uma tarefa que exige a criação de mecanismos automáticos para o conseguir.
+
+Com o objetivo de obter meta-dados que caracterizem os fenómenos linguísticos, relacionados com cada idioma, na língua natural, reúnem-se conjuntos de documentos a fim de obter robustez estatística que garanta fiabilidade a esses meta-dados. Nestes meta-dados podemos incluir, a frequência relativa dos diferentes \textit{n}-gramas (sequências de uma ou mais palavras na mesma língua) e outras métricas que podemos considerar de informação cruzada entre \textit{n}-gramas. De entre os \textit{n}-gramas existem aqueles aos quais está associada uma semântica mais dirigida/especifica. A título de exemplo o \textit{n}-grama "Universidade Nova de Lisboa" \thinspace tem associado um significado muito preciso. Ao contrário deste, o \textit{n}-grama "Em que" \thinspace é semanticamente muito vago ou mesmo despido de semântica, em termos práticos. O primeiro \textit{n}-grama faz parte do conjunto a que chamamos expressões relevantes, expressões que concentram significados muito fortes capazes de num texto quase resumi-lo.
+
+Como a deteção deste tipo de expressões relevantes é uma temática importante para esta tese, há que ter em conta que existe todo um conjunto de métodos que as podem aplicar. Estes métodos analisam grandes quantidades de dados porque incidem num conjunto de documentos de texto (\textit{corpus linguístico}) de grandes dimensões. Por exemplo, métodos baseados em métricas de correlação, que têm como objetivo medir a dependência/associação entre duas variáveis, neste caso em particular, com variáveis queremo-nos referir às expressões relevantes que, por surgirem com frequências diferentes em cada documento, podem ser tomadas como variáveis.
+
+Como veremos na secção \ref{cha:estado_arte},  as Expressoões Relevantes podem ser extraídas/mineradas a partir, quer de métodos NLP (Natural Languase Processing) onde é usada informação morfo-sintática, quer a partir de métodos estatísticos. Qualquer das duas famílias de abordagens usam \textit{corpora} lisguísticos.  
+
+Uma das tarefas que queremos realizar nesta dissertação, para além de outras, consiste no cálculo da correlação entre todos os pares de expressões relevantes. Assim, tendo em conta que a partir dum \textit{corpus} de, por exemplo, $10\times10^{6}$ palavras é de esperar que sejam extraídas cerca de $10^6$ expressões relevantes, teremos $10^6 \times (10^{6} - 1) / 2 \simeq 4,99 \times 10^{12}$ correlações a calcular. O número de correlações cresce pois com o quadrado do número de Expressões Relevantes do \textit{corpus}, tarefa que se torna num problema de Big Data. Com esta realidade em mente, facilmente percebemos que este tipo de processamento requer o recurso a técnicas de paralelismo. Computação paralela é um tipo de computação que permite distribuir a carga ( por exemplo: distribuição do \textit{input} a processar, distribuição das várias tarefas a cumprir) por várias \textit{threads}/processos, de forma equilibrada. Desta forma é possível implementar projetos que seriam muito pesados computacionalmente, de uma maneira muito mais eficiente~\cite{Almasi1989}.
+
+\section{Motivação} % (fold)
+\label{sec:motivacao}
+A motivação por detrás desta tese assenta principalmente em dois pontos.
+O primeiro decorre da necessidade de resolver com eficiência um dos problemas criados pelo crescimento do volume de dados: o cálculo da correlação entre grandes quantidades de pares de expressões relevantes;  cálculo que permitirá a ligação semântica entre documentos e a construção automática de descritores de documentos através das suas \textit{keywords} também automaticamente extraídas.
+
+O segundo ponto reside no meu interesse na área do paralelismo. Pretende-se que a abordagem a desenvolver seja implementada em protótipo e que este possa ser utilizado para processar corpora de média e grande dimensão com eficiência. A elaboração dum paper que mereça a consideração da comunidade é também uma motivação.
+
+% section a_bit_of_history (end)
+A elaboração de técnicas como as que vão ser usadas no âmbito desta dissertação pode reequacionar o peso a investir nas componentes de hardware e software, por parte das organizações/empresas.
+
+Relacionado com o primeiro ponto de motivação já referido, está a capacidade que se pretende adquirir de modo a obter relações de proximidade entre documentos através do seu conteúdo (os seus tópicos), bem como a construção automática de descritores desses documentos. 
+
+\section{Identificação do Problema} % (fold)
+\label{sec:identificacao_problema}
+Um \textit{corpus linguístico} é um conjunto de documentos de texto escritos numa determinada língua que serve como base de análise para diferentes propósitos. Como já foi referido, algumas sequências de palavras (\textit{n}-gramas) estão fortemente ligadas e formam, por isso, Expressões Relevantes ERs (\textit{Multi-word Expression}, MWEs). Estas expressões têm a propriedade de refletir fortemente o conteúdo "core" \thinspace dos documentos onde ocorrem. São elas por exemplo, "crise financeira mundial", "aquecimento global", "direitos humanos", etc. As ERs podem ser extraídas por extratores próprios.
+
+Uma vez extraídas, é possível medir quão semanticamente próximas estão umas das outras. É de esperar que exista uma proximidade semântica forte entre as ERs "crise financeira mundial" \thinspace e "desemprego na Zona Euro" \thinspace mas, não é de esperar qualquer proximidade semântica entre as ERs "seca na Península Ibérica" \thinspace e "Liga NOS". A proximidade semântica pode ser calculada a partir de métricas de correlação estatística.
+
+Por outro lado, através de métricas estatísticas, é também possível selecionar as ERs mais informativas/relevantes e que, por isso mesmo, possam vir a ser usadas como \textit{Keywords} descritoras do conteúdo dos documentos. No entanto, tendo em conta os tópicos de que trata um documento, este pode não conter explicitamente algumas ERs/\textit{keywords} com as quais está semanticamente relacionado. Por exemplo, um documento muito pequeno pode tratar de questões relacionadas com o ambiente e conter ERs como \textit{"global warming"} mas não conter a ER \textit{"Ice melting"} da qual está semanticamente próximo como facilmente se compreende; seria útil que, num ambiente de pesquisa, um motor de busca pudesse recuperar também este documento após uma query sobre \textit{"Ice melting"}, apesar do documento não conter explicitamente esta ER.
+
+Para conseguir a construção automática de tais descritores de documentos, é necessário dispôr da capacidade de cálculo da correlação entre pares de ERs, sendo que, o número de pares cresce com o quadrado do tamanho do númerode ERs no \textit{corpus}, como já foi referido. Um ambiente de processamento não paralelo é pois ineficiente para resolver este problema.
+
+Por outro lado, é útil que estes mecanismos possam ser usados não só para uma língua específica, para a qual se dispõe do seu conhecimento morfo-sintático. Por outras palavras seria desejável que pudessem ser usados para várias línguas sem ter que conhecer a sua estrutura morfo-sintática.
+
+\section{Objetivos}
+A construção automática de descritores de documentos a partir de \textit{corpora}, não dependente da língua, impõe dois objetivos principais:
+
+Um primeiro objetivo reside na elaboração de técnicas que selecionem as ERs mais semanticamente informativas explicitamente escritas em cada documento. A estas ERs chamaremos as \textit{Keywords} Explícitas. Esta seleção deverá usar métodos estatísticos, de forma a não dependerem da estrutura de qualquer língua. Neste trabalho assume-se que é previamente fornecido o conjunto de ERs para todos os documentos do \textit{corpus} através de extrator apropriado.
+
+Este objetivo envolverá a necessidade de processamento paralelo e distribuído com vista ao mapeamento das ERs nos respetivos documentos, processo que envolve uma combinatória computacionalmente pesada.
+
+Um segundo objetivo, assenta na necessidade de dotar cada descritor com "pontes semânticas" para outros documentos. Este mecanismo será obtido através da identificação daquilo a que chamamos \textit{Keywords} implícitas. Estas \textit{Keywords} correspondem a ERs muito informativas que, não residindo no documento, estão no entanto fortemente correlacionadas com as \textit{Keywords} explícitas do documento. Esta correlação será calculada estatisticamente.
+
+Para conseguir este segundo objetivo, impõe-se a necessidade de usar técnicas de processamento paralelo e distribuído, dado o elevado número de pares de correlações a calcular.
+
+\section{Estrutura do documento}
+A estrutura desta dissertação é a seguinte: 
+    \begin{description}
+        \item[Capitulo 2:] Estado de Arte
+        \item[Capitulo 3:] Trabalho Realizado
+        \item[Capitulo 4:] Plano de Trabalhos
+    \end{description}

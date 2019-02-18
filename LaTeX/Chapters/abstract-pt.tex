@@ -1,0 +1,17 @@
+%!TEX root = ../template.tex
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% abstrac-pt.tex
+%% NOVA thesis document file
+%%
+%% Abstract in Portuguese
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Aferiu-se que 90\% dos dados que existem na Internet foram criados nos últimos dois anos. Tendo em vista este crescimento de dados, o número de padrões/relações neles contida é também muito grande. Com o objetivo de obter meta-dados que descrevam estes e outros fenómenos linguísticos, na linguagem natural, reúnem-se conjuntos de documentos em número suficiente, a fim de obter robustez estatística. Num \textit{corpus linguístico} existem vários n-gramas que podem, ou não, estar fortemente ligados entre si. Os n-gramas mais informativos têm a propriedade de refletir fortemente o conteúdo "core" \thinspace dos documentos onde ocorrem. Formam por isso, Expressões Relevantes ERs (\textit{Multi-word Expression}, MWEs). Uma vez que as ERs são extraíveis diretamente do \textit{corpus}, é possível medir quão semanticamente próximas estão umas das outras. Tomando como exemplo estas duas ERs, "crise financeira" \thinspace e "desemprego na Zona Euro", é de esperar que exista uma proximidade semântica forte entre elas. Esta proximidade pode ser calculada através de métricas de correlação estatística. Por outro lado, é também possível com outras métricas selecionar as ERs mais informativas. Também, o conteúdo "core" \thinspace dum documento pode estar semanticamente ligado a um conjunto de ERs mesmo que estas não estejam presentes no documento; por exemplo, num documento de texto curto que trate de questões relativas ao ambiente e contenha a ER "global warming" \thinspace mas não contenha a ER "Ice melting", à qual está semanticamente próxima, como facilmente se compreende. Seria útil que em ambiente de pesquisa, um motor de busca pudesse recuperar este documento após a query sobre "Ice melting", mesmo que o documento não contivesse explicitamente esta ER. De modo a conseguir a construção automática de tais descritores de documentos, é necessário dispôr da capacidade de cálculo da correlação entre pares de ERs.
+
+Considerando que o número de pares cresce com o quadrado do tamanho em palavras dos \textit{corpora}, este processamento requer um ambiente paralelo e distribuído; Hadoop e Spark são abordagens a ter em conta.
+
+O desafio desta dissertação inclui a implementação dum protótipo que consiga de forma automática, em tempo útil, construir descritores de documentos a partir de \textit{corpora} linguísticos. Este protótipo pode vir a ser útil em diversas áreas, como é o caso de \textit{query expansion}, como já foi referido anteriormente. 
+
+
+\begin{keywords}
+Big Data, Expressões Relevantes (ERs), Extratores de ERs, N-grama, Correlação de Pearson, Sistemas paralelos e distribuídos, Hadoop, Spark.
+\end{keywords}
